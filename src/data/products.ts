@@ -20,7 +20,7 @@ export const products: Product[] = [
   {
     id: "1",
     name: "Professional Claw Hammer",
-    price: 12000,
+    price: 16000,
     originalPrice: 16000,
     image: "https://images.unsplash.com/photo-1586864387967-d02ef85d93e8?w=600&h=600&fit=crop",
     category: "Hand Tools",
@@ -30,7 +30,7 @@ export const products: Product[] = [
   {
     id: "2",
     name: "Cordless Impact Drill 20V",
-    price: 85000,
+    price: 280000,
     image: "https://images.unsplash.com/photo-1504148455328-c376907d081c?w=600&h=600&fit=crop",
     category: "Power Tools",
     description: "20V Li-ion battery ပါဝင်သော cordless impact drill ဖြစ်ပါတယ်။ သစ်သား၊ သံ၊ ကွန်ကရစ် အားလုံး ဖောက်နိုင်ပါတယ်။",
@@ -39,7 +39,7 @@ export const products: Product[] = [
   {
     id: "3",
     name: "Screwdriver Set (12 pcs)",
-    price: 15000,
+    price: 45000,
     image: "https://images.unsplash.com/photo-1426927308491-6380b6a9936f?w=600&h=600&fit=crop",
     category: "Hand Tools",
     description: "Flathead နှင့် Phillips head အမျိုးမျိုး ပါဝင်သော screwdriver set ဖြစ်ပါတယ်။",
@@ -47,8 +47,8 @@ export const products: Product[] = [
   {
     id: "4",
     name: "Safety Goggles",
-    price: 5500,
-    image: "https://images.unsplash.com/photo-1585435557343-3b092031a831?w=600&h=600&fit=crop",
+    price: 18000,
+    image: "/lovable-uploads/544ca2dd-9567-470d-938f-53b2d00bcedc.png",
     category: "Accessories",
     description: "ဖုန်မှုန့်နှင့် အစအန ကာကွယ်ပေးနိုင်သော safety goggles ဖြစ်ပါတယ်။",
   },
