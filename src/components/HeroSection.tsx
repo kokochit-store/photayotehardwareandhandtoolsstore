@@ -8,16 +8,16 @@ const HeroSection = () => {
       <div className="container mx-auto px-4 py-20 md:py-32">
         <div className="max-w-2xl space-y-6">
           <span className="inline-block px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-semibold tracking-wide uppercase">
-            စက်အပိုပစ္စည်း အမျိုးမျိုး
+            Hand Tools · Power Tools · Accessories
           </span>
           <h1 className="text-4xl md:text-6xl font-display font-bold leading-tight text-foreground">
-            ဖုန်းအပိုပစ္စည်း
+            စက်ကိရိယာ
             <br />
             <span className="text-primary">အကောင်းဆုံး</span>များ
           </h1>
           <p className="text-base md:text-lg text-muted-foreground max-w-md leading-relaxed">
-            ဖုန်းကာဗာ၊ အားသွင်းကိရိယာ၊ နားကြပ်၊ ကေဘယ်ကြိုးနှင့် 
-            စခရင်ကာများကို ဈေးနှုန်းသက်သာစွာ ရယူလိုက်ပါ။
+            Hand tools, power tools နှင့် accessories အမျိုးမျိုးကို 
+            ဈေးနှုန်းသက်သာစွာ ရယူလိုက်ပါ။ အရည်အသွေး အာမခံပါတယ်။
           </p>
           <div className="flex flex-wrap gap-3 pt-2">
             <Button asChild size="lg" className="gap-2">
