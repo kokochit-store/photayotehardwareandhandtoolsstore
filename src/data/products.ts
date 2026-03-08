@@ -40,7 +40,7 @@ export const products: Product[] = [
     id: "3",
     name: "Screwdriver Set (12 pcs)",
     price: 45000,
-    image: "https://images.unsplash.com/photo-1426927308491-6380b6a9936f?w=600&h=600&fit=crop",
+    image: "/lovable-uploads/c0451941-5682-49f0-a0b6-5332cae2820b.png",
     category: "Hand Tools",
     description: "Flathead နှင့် Phillips head အမျိုးမျိုး ပါဝင်သော screwdriver set ဖြစ်ပါတယ်။",
   },
