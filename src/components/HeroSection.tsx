@@ -15,9 +15,9 @@ const HeroSection = () => {
 
       <div className="container relative z-10 mx-auto px-4 py-20 md:py-32">
         <div className="max-w-2xl space-y-6">
-          <span className="inline-block py-1 rounded-full bg-background/20 text-primary-foreground text-xs font-semibold tracking-wide uppercase backdrop-blur-sm px-[158px]">
-            Hand Tools · Power Tools · Accessories
-          </span>
+          
+
+          
           
 
 
