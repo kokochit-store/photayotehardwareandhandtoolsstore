@@ -73,11 +73,11 @@ export const products: Product[] = [
   },
   {
     id: "7",
-    name: "Adjustable Wrench 10\"",
+    name: "Adjustable Wrench 12\"",
     price: 9000,
-    image: "https://images.unsplash.com/photo-1581166397057-235af2b3c6dd?w=600&h=600&fit=crop",
+    image: "/lovable-uploads/adjustable-wrench-12.png",
     category: "Hand Tools",
-    description: "10 လက်မ adjustable wrench ဖြစ်ပြီး chrome vanadium steel ဖြင့် ပြုလုပ်ထားပါတယ်။",
+    description: "12 လက်မ adjustable wrench ဖြစ်ပြီး chrome vanadium steel ဖြင့် ပြုလုပ်ထားပါတယ်။",
   },
   {
     id: "8",
