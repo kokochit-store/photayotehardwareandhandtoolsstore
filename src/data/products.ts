@@ -20,7 +20,7 @@ export const products: Product[] = [
   {
     id: "1",
     name: "Professional Claw Hammer",
-    price: 12000,
+    price: 16000,
     originalPrice: 16000,
     image: "https://images.unsplash.com/photo-1586864387967-d02ef85d93e8?w=600&h=600&fit=crop",
     category: "Hand Tools",
