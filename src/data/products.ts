@@ -90,7 +90,7 @@ export const products: Product[] = [
   {
     id: "9",
     name: "Work Gloves (Heavy Duty)",
-    price: 6500,
+    price: 12000,
     image: "https://images.unsplash.com/photo-1582738411706-bfc8e691d1c2?w=600&h=600&fit=crop",
     category: "Accessories",
     description: "အရည်အသွေးမြင့် leather work gloves ဖြစ်ပြီး လက်ကို ကာကွယ်ပေးပါတယ်။",
