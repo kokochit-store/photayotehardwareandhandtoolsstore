@@ -17,8 +17,8 @@ const Navbar = () => {
           {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
         </button>
 
-        <Link to="/" className="font-display text-xl font-bold tracking-tight text-foreground">
-          SHOP<span className="text-primary">.</span>MM
+        <Link to="/" className="font-display text-lg font-bold tracking-tight text-foreground">
+          ဖိုးတရုတ်<span className="text-primary"> စက်အပိုပစ္စည်း</span>
         </Link>
 
         <nav className="hidden md:flex items-center gap-8">
@@ -51,18 +51,10 @@ const Navbar = () => {
       {mobileMenuOpen && (
         <div className="md:hidden border-t border-border bg-background animate-fade-in">
           <nav className="container mx-auto px-4 py-4 flex flex-col gap-3">
-            <Link
-              to="/"
-              onClick={() => setMobileMenuOpen(false)}
-              className="text-sm font-medium py-2 text-foreground/70 hover:text-foreground"
-            >
+            <Link to="/" onClick={() => setMobileMenuOpen(false)} className="text-sm font-medium py-2 text-foreground/70 hover:text-foreground">
               ပင်မစာမျက်နှာ
             </Link>
-            <Link
-              to="/products"
-              onClick={() => setMobileMenuOpen(false)}
-              className="text-sm font-medium py-2 text-foreground/70 hover:text-foreground"
-            >
+            <Link to="/products" onClick={() => setMobileMenuOpen(false)} className="text-sm font-medium py-2 text-foreground/70 hover:text-foreground">
               ပစ္စည်းများ
             </Link>
           </nav>
