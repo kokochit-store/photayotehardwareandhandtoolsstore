@@ -11,7 +11,10 @@ const HeroSection = () => {
         style={{ backgroundImage: "url('/images/hero-bg.jpeg')" }} />
       
       {/* Warm overlay */}
-      <div className="absolute inset-0 bg-gradient-to-br from-[hsl(35,90%,50%)]/80 via-[hsl(24,80%,50%)]/60 to-[hsl(15,70%,30%)]/70" />
+      {/* Dark base for contrast */}
+      <div className="absolute inset-0 bg-black/40" />
+      {/* Warm accent gradient */}
+      <div className="absolute inset-0 bg-gradient-to-br from-[hsl(30,85%,45%)]/50 via-transparent to-[hsl(20,70%,25%)]/60" />
 
       <div className="container relative z-10 mx-auto px-4 py-20 md:py-32">
         <div className="max-w-2xl space-y-6">
