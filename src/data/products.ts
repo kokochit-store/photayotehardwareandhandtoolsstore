@@ -64,11 +64,11 @@ export const products: Product[] = [
    },
   {
     id: "6",
-    name: "Measuring Tape 5m",
+    name: "Measuring Tape 3m",
     price: 4500,
     image: "https://images.unsplash.com/photo-1589939705384-5185137a7f0f?w=600&h=600&fit=crop",
     category: "Accessories",
-    description: "5 မီတာ အရှည်ရှိသော ကြံ့ခိုင်သည့် measuring tape ဖြစ်ပါတယ်။",
+    description: "3 မီတာ အရှည်ရှိသော ကြံ့ခိုင်သည့် measuring tape ဖြစ်ပါတယ်။",
     badge: "New",
   },
   {
