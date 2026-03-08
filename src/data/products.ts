@@ -47,8 +47,8 @@ export const products: Product[] = [
   {
     id: "4",
     name: "Safety Goggles",
-    price: 5500,
-    image: "https://images.unsplash.com/photo-1585435557343-3b092031a831?w=600&h=600&fit=crop",
+    price: 18000,
+    image: "/lovable-uploads/544ca2dd-9567-470d-938f-53b2d00bcedc.png",
     category: "Accessories",
     description: "ဖုန်မှုန့်နှင့် အစအန ကာကွယ်ပေးနိုင်သော safety goggles ဖြစ်ပါတယ်။",
   },
