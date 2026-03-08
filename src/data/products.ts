@@ -74,15 +74,15 @@ export const products: Product[] = [
   {
     id: "7",
     name: "Adjustable Wrench 12\"",
-    price: 9000,
+    price: 50000,
     image: "/lovable-uploads/adjustable-wrench-12.png",
     category: "Hand Tools",
     description: "12 လက်မ adjustable wrench ဖြစ်ပြီး chrome vanadium steel ဖြင့် ပြုလုပ်ထားပါတယ်။",
   },
   {
     id: "8",
-    name: "Circular Saw 1400W",
-    price: 95000,
+    name: "Circular Saw 1200W 185mm",
+    price: 320000,
     image: "https://images.unsplash.com/photo-1616712134411-6b6ae89bc3ba?w=600&h=600&fit=crop",
     category: "Power Tools",
     description: "1400W circular saw ဖြစ်ပြီး သစ်သားဖြတ်တောက်ခြင်း အတွက် အထူးသင့်တော်ပါတယ်။",
