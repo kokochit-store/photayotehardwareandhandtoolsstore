@@ -4,8 +4,7 @@ import { useCart } from "@/contexts/CartContext";
 import { toast } from "sonner";
 
 const formatPrice = (price: number) => {
-  const formatted = new Intl.NumberFormat("my-MM").format(price);
-  return formatted.replace(/\d/g, (digit) => String.fromCharCode(0x1090 + parseInt(digit))) + " ကျပ်";
+  return price.toLocaleString() + " ကျပ်";
 };
 
 interface ProductCardProps {
