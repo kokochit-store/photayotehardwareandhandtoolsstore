@@ -31,7 +31,7 @@ export const products: Product[] = [
     id: "2",
     name: "Cordless Impact Drill 20V",
     price: 280000,
-    image: "https://images.unsplash.com/photo-1504148455328-c376907d081c?w=600&h=600&fit=crop",
+    image: "/lovable-uploads/175750a5-0b60-4910-82ff-f0342295a3b3.png",
     category: "Power Tools",
     description: "20V Li-ion battery ပါဝင်သော cordless impact drill ဖြစ်ပါတယ်။ သစ်သား၊ သံ၊ ကွန်ကရစ် အားလုံး ဖောက်နိုင်ပါတယ်။",
     badge: "New",
