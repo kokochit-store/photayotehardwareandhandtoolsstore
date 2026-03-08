@@ -4,10 +4,10 @@ const Footer = () => (
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
         <div>
           <h3 className="font-display text-lg font-bold mb-3">
-            SHOP<span className="text-primary">.</span>MM
+            ဖိုးတရုတ်<span className="text-primary"> စက်အပိုပစ္စည်း</span>
           </h3>
           <p className="text-sm text-muted-foreground leading-relaxed">
-            အရည်အသွေးမြင့် ပစ္စည်းများကို ဈေးနှုန်းသက်သာစွာ ရရှိနိုင်ပါတယ်။
+            ဖုန်းအပိုပစ္စည်းအမျိုးမျိုးကို ဈေးနှုန်းသက်သာစွာ ရရှိနိုင်ပါတယ်။
           </p>
         </div>
         <div>
@@ -22,13 +22,13 @@ const Footer = () => (
           <h4 className="font-medium text-sm mb-3">ဆက်သွယ်ရန်</h4>
           <ul className="space-y-2 text-sm text-muted-foreground">
             <li>📞 09-123-456-789</li>
-            <li>✉️ hello@shop.mm</li>
+            <li>✉️ info@phoehtayoke.mm</li>
             <li>📍 ရန်ကုန်မြို့</li>
           </ul>
         </div>
       </div>
       <div className="mt-10 pt-6 border-t border-border text-center text-xs text-muted-foreground">
-        © 2026 SHOP.MM — All rights reserved.
+        © 2026 ဖိုးတရုတ် စက်အပိုပစ္စည်း — All rights reserved.
       </div>
     </div>
   </footer>
