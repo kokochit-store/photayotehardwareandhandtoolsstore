@@ -3,8 +3,10 @@ import type { Product } from "@/data/products";
 import { useCart } from "@/contexts/CartContext";
 import { toast } from "sonner";
 
-const formatPrice = (price: number) =>
-  new Intl.NumberFormat("my-MM").format(price) + " ကျပ်";
+const formatPrice = (price: number) => {
+  const formatted = new Intl.NumberFormat("my-MM").format(price);
+  return formatted.replace(/\d/g, (digit) => String.fromCharCode(0x1090 + parseInt(digit))) + " ကျပ်";
+};
 
 interface ProductCardProps {
   product: Product;
