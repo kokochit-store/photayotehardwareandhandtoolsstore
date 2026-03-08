@@ -83,7 +83,7 @@ export const products: Product[] = [
     id: "8",
     name: "Circular Saw 1200W 185mm",
     price: 320000,
-    image: "https://images.unsplash.com/photo-1616712134411-6b6ae89bc3ba?w=600&h=600&fit=crop",
+    image: "/lovable-uploads/circular-saw-1200w.png",
     category: "Power Tools",
     description: "1400W circular saw ဖြစ်ပြီး သစ်သားဖြတ်တောက်ခြင်း အတွက် အထူးသင့်တော်ပါတယ်။",
   },
