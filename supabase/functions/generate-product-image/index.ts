@@ -76,16 +76,34 @@ serve(async (req) => {
     if (!aiRes.ok) {
       const errText = await aiRes.text();
       if (aiRes.status === 429) {
-        return new Response(JSON.stringify({ error: "Rate limit exceeded" }), {
-          status: 429,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
+        return new Response(
+          JSON.stringify({
+            success: false,
+            error: "Rate limit exceeded",
+            code: "RATE_LIMIT",
+            fallback: true,
+            retry_after_ms: 15000,
+          }),
+          {
+            status: 200,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          }
+        );
       }
       if (aiRes.status === 402) {
-        return new Response(JSON.stringify({ error: "Insufficient credits" }), {
-          status: 402,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
+        return new Response(
+          JSON.stringify({
+            success: false,
+            error: "Insufficient credits",
+            code: "INSUFFICIENT_CREDITS",
+            fallback: true,
+            stop: true,
+          }),
+          {
+            status: 200,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          }
+        );
       }
       throw new Error(`AI gateway error ${aiRes.status}: ${errText}`);
     }
@@ -120,9 +138,20 @@ serve(async (req) => {
     });
   } catch (err) {
     console.error("generate-product-image error:", err);
+    const message = err instanceof Error ? err.message : "Unknown error";
+    const isRecoverable = /rate limit|insufficient credits/i.test(message);
+    const code = /insufficient credits/i.test(message)
+      ? "INSUFFICIENT_CREDITS"
+      : /rate limit/i.test(message)
+        ? "RATE_LIMIT"
+        : "UNKNOWN_ERROR";
+
     return new Response(
-      JSON.stringify({ error: err instanceof Error ? err.message : "Unknown error" }),
-      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      JSON.stringify({ success: false, error: message, fallback: isRecoverable, code }),
+      {
+        status: isRecoverable ? 200 : 500,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      }
     );
   }
 });

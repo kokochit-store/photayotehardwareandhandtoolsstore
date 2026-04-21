@@ -49,38 +49,60 @@ const Admin = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filter]);
 
-  const generateOne = async (product: DbProduct, retries = 3): Promise<boolean> => {
+  type GenerateResult = "success" | "failed" | "rate_limited" | "credits_exhausted";
+
+  const generateOne = async (product: DbProduct, retries = 3): Promise<GenerateResult> => {
     setGenerating((prev) => new Set(prev).add(product.id));
     try {
       for (let attempt = 0; attempt < retries; attempt++) {
         const { data, error } = await supabase.functions.invoke("generate-product-image", {
           body: { productId: product.id, productName: product.name, category: product.category },
         });
+
+        const httpStatus = (error as any)?.context?.status;
+        const code = data?.code as string | undefined;
         const isRateLimit =
-          (error as any)?.context?.status === 429 ||
+          httpStatus === 429 ||
+          code === "RATE_LIMIT" ||
           /429|rate limit/i.test(error?.message || "") ||
           /rate limit/i.test(data?.error || "");
-        if (isRateLimit && attempt < retries - 1) {
-          // Exponential backoff: 5s, 10s, 20s
-          const wait = 5000 * Math.pow(2, attempt);
-          await new Promise((r) => setTimeout(r, wait));
-          continue;
+        const isCreditsExhausted =
+          httpStatus === 402 ||
+          code === "INSUFFICIENT_CREDITS" ||
+          Boolean(data?.stop) ||
+          /insufficient credits/i.test(error?.message || "") ||
+          /insufficient credits/i.test(data?.error || "");
+
+        if (isCreditsExhausted) {
+          toast.error("AI credits မလုံလောက်တော့ပါ — Workspace Usage မှာ top up လုပ်ရန်လိုပါတယ်");
+          return "credits_exhausted";
         }
+
+        if (isRateLimit) {
+          const wait = data?.retry_after_ms ?? 15000;
+          if (attempt < retries - 1) {
+            await new Promise((r) => setTimeout(r, wait));
+            continue;
+          }
+          toast.error(`${product.name}: ခဏနေပြီး ထပ်စမ်းပါ`);
+          return "rate_limited";
+        }
+
         if (error) throw error;
         if (data?.error) throw new Error(data.error);
         if (data?.image_url) {
           setProducts((prev) =>
             prev.map((p) => (p.id === product.id ? { ...p, image_url: data.image_url } : p))
           );
-          return true;
+          return "success";
         }
-        return false;
+        return "failed";
       }
-      return false;
+      return "failed";
     } catch (err: any) {
       const msg = err?.message || "ပုံ ဖန်တီးခြင်း မအောင်မြင်ပါ";
       toast.error(`${product.name}: ${msg}`);
-      return false;
+      return "failed";
     } finally {
       setGenerating((prev) => {
         const next = new Set(prev);
@@ -91,8 +113,8 @@ const Admin = () => {
   };
 
   const handleSingle = async (product: DbProduct) => {
-    const ok = await generateOne(product);
-    if (ok) toast.success(`${product.name} — ပုံ ပြီးပါပြီ`);
+    const result = await generateOne(product);
+    if (result === "success") toast.success(`${product.name} — ပုံ ပြီးပါပြီ`);
   };
 
   const handleBulk = async () => {
@@ -101,15 +123,29 @@ const Admin = () => {
     setBulkRunning(true);
     setProgress({ done: 0, total: products.length });
     let done = 0;
+    let creditsExhausted = false;
+
     for (const p of products) {
       if (stopRef.current) break;
-      await generateOne(p);
+      const result = await generateOne(p);
+      if (result === "credits_exhausted") {
+        creditsExhausted = true;
+        break;
+      }
       done++;
       setProgress({ done, total: products.length });
-      // Respect rate limits — ~20 requests/min
-      await new Promise((r) => setTimeout(r, 3500));
+      await new Promise((r) => setTimeout(r, 12000));
     }
+
     setBulkRunning(false);
+    if (creditsExhausted) {
+      toast.error("Bulk generation ရပ်ထားပါတယ် — AI credits ကုန်နေပါတယ်");
+      return;
+    }
+    if (stopRef.current) {
+      toast.info(`ရပ်ဆိုင်းထားပါတယ် — ${done}/${products.length}`);
+      return;
+    }
     toast.success(`အသုတ်လိုက် ပြီးပါပြီ — ${done}/${products.length}`);
   };
 
