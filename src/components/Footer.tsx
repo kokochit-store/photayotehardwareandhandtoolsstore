@@ -7,7 +7,7 @@ const Footer = () => (
             ဖိုးတရုတ်<span className="text-primary"> စက်အပိုပစ္စည်း</span>
           </h3>
           <p className="text-sm text-muted-foreground leading-relaxed">
-            ဖုန်းအပိုပစ္စည်းအမျိုးမျိုးကို ဈေးနှုန်းသက်သာစွာ ရရှိနိုင်ပါတယ်။
+            လက်သုံးစက်သုံး စက်အပိုပစ္စည်းအမျိုးမျိုးကို ဈေးနှုန်းသက်သာစွာ ရရှိနိုင်ပါတယ်။
           </p>
         </div>
         <div>
