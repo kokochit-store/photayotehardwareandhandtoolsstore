@@ -49,18 +49,32 @@ const Admin = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filter]);
 
-  const generateOne = async (product: DbProduct): Promise<boolean> => {
+  const generateOne = async (product: DbProduct, retries = 3): Promise<boolean> => {
     setGenerating((prev) => new Set(prev).add(product.id));
     try {
-      const { data, error } = await supabase.functions.invoke("generate-product-image", {
-        body: { productId: product.id, productName: product.name, category: product.category },
-      });
-      if (error) throw error;
-      if (data?.image_url) {
-        setProducts((prev) =>
-          prev.map((p) => (p.id === product.id ? { ...p, image_url: data.image_url } : p))
-        );
-        return true;
+      for (let attempt = 0; attempt < retries; attempt++) {
+        const { data, error } = await supabase.functions.invoke("generate-product-image", {
+          body: { productId: product.id, productName: product.name, category: product.category },
+        });
+        const isRateLimit =
+          (error as any)?.context?.status === 429 ||
+          /429|rate limit/i.test(error?.message || "") ||
+          /rate limit/i.test(data?.error || "");
+        if (isRateLimit && attempt < retries - 1) {
+          // Exponential backoff: 5s, 10s, 20s
+          const wait = 5000 * Math.pow(2, attempt);
+          await new Promise((r) => setTimeout(r, wait));
+          continue;
+        }
+        if (error) throw error;
+        if (data?.error) throw new Error(data.error);
+        if (data?.image_url) {
+          setProducts((prev) =>
+            prev.map((p) => (p.id === product.id ? { ...p, image_url: data.image_url } : p))
+          );
+          return true;
+        }
+        return false;
       }
       return false;
     } catch (err: any) {
@@ -92,8 +106,8 @@ const Admin = () => {
       await generateOne(p);
       done++;
       setProgress({ done, total: products.length });
-      // small delay to respect rate limits
-      await new Promise((r) => setTimeout(r, 800));
+      // Respect rate limits — ~20 requests/min
+      await new Promise((r) => setTimeout(r, 3500));
     }
     setBulkRunning(false);
     toast.success(`အသုတ်လိုက် ပြီးပါပြီ — ${done}/${products.length}`);
