@@ -21,9 +21,9 @@ const Footer = () => (
         <div>
           <h4 className="font-medium text-sm mb-3">ဆက်သွယ်ရန်</h4>
           <ul className="space-y-2 text-sm text-muted-foreground">
-            <li>📞 09-123-456-789</li>
-            <li>✉️ info@phoehtayoke.mm</li>
-            <li>📍 ရန်ကုန်မြို့</li>
+            <li>📞 09-796959551</li>
+            <li>✉️ thihanthu282@gmail.com</li>
+            <li>📍 အမှတ်(၂၁) ဘုရင့်နောင်လမ်း ပန်းတနော်မြို့  ဧရာဝတီတိုင်းဒေသကြီး</li>
           </ul>
         </div>
       </div>
