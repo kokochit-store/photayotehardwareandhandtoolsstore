@@ -6,7 +6,6 @@ export interface DbProduct {
   name: string;
   sku: string | null;
   category: string | null;
-  cost_price: number;
   sell_price: number;
   stock: number;
   image_url: string | null;
