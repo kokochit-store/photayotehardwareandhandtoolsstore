@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
-import { Loader2, Sparkles, LogOut, Image as ImageIcon, RefreshCw, Square } from "lucide-react";
+import { Loader2, Sparkles, LogOut, Image as ImageIcon, RefreshCw, Square, Upload } from "lucide-react";
 import { toast } from "sonner";
 
 interface DbProduct {
