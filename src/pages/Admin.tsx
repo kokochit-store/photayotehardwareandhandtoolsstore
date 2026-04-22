@@ -24,9 +24,11 @@ const Admin = () => {
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState<"all" | "missing" | "has">("missing");
   const [generating, setGenerating] = useState<Set<number>>(new Set());
+  const [uploading, setUploading] = useState<Set<number>>(new Set());
   const [bulkRunning, setBulkRunning] = useState(false);
   const [progress, setProgress] = useState({ done: 0, total: 0 });
   const stopRef = useRef(false);
+  const fileInputs = useRef<Record<number, HTMLInputElement | null>>({});
 
   const loadProducts = async () => {
     setLoading(true);
