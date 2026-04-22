@@ -156,6 +156,45 @@ const Admin = () => {
     toast.info("ရပ်ဆိုင်းနေပါသည်...");
   };
 
+  const handleUpload = async (product: DbProduct, file: File) => {
+    if (!file.type.startsWith("image/")) {
+      toast.error("ပုံဖိုင်သာ ရွေးပါ");
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("ဖိုင်အရွယ် 5MB ထက် မပိုရပါ");
+      return;
+    }
+    setUploading((prev) => new Set(prev).add(product.id));
+    try {
+      const ext = file.name.split(".").pop()?.toLowerCase() || "jpg";
+      const path = `products/${product.id}-${Date.now()}.${ext}`;
+      const { error: upErr } = await supabase.storage
+        .from("product-images")
+        .upload(path, file, { cacheControl: "3600", upsert: true, contentType: file.type });
+      if (upErr) throw upErr;
+      const { data: pub } = supabase.storage.from("product-images").getPublicUrl(path);
+      const url = pub.publicUrl;
+      const { error: updErr } = await supabase
+        .from("products")
+        .update({ image_url: url })
+        .eq("id", product.id);
+      if (updErr) throw updErr;
+      setProducts((prev) =>
+        prev.map((p) => (p.id === product.id ? { ...p, image_url: url } : p))
+      );
+      toast.success(`${product.name} — ပုံ တင်ပြီးပါပြီ`);
+    } catch (err: any) {
+      toast.error(`${product.name}: ${err?.message || "တင်၍ မရပါ"}`);
+    } finally {
+      setUploading((prev) => {
+        const next = new Set(prev);
+        next.delete(product.id);
+        return next;
+      });
+    }
+  };
+
   return (
     <main className="min-h-screen bg-background">
       <header className="border-b bg-card">
