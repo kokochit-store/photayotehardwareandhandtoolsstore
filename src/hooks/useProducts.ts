@@ -44,7 +44,7 @@ export function useProducts({ search, category, page }: UseProductsArgs) {
 
       const { data, error, count } = await query;
       if (error) throw error;
-      return { data: data as DbProduct[], count: count ?? 0 };
+      return { data: (data as unknown) as DbProduct[], count: count ?? 0 };
     },
   });
 }
