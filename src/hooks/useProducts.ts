@@ -6,7 +6,6 @@ export interface DbProduct {
   name: string;
   sku: string | null;
   category: string | null;
-  cost_price: number;
   sell_price: number;
   stock: number;
   image_url: string | null;
@@ -29,7 +28,7 @@ export function useProducts({ search, category, page }: UseProductsArgs) {
       const to = from + PAGE_SIZE - 1;
 
       let query = supabase
-        .from("products")
+        .from("products_public" as any)
         .select("*", { count: "exact" })
         .order("stock", { ascending: false })
         .order("name", { ascending: true })
@@ -45,7 +44,7 @@ export function useProducts({ search, category, page }: UseProductsArgs) {
 
       const { data, error, count } = await query;
       if (error) throw error;
-      return { data: data as DbProduct[], count: count ?? 0 };
+      return { data: (data as unknown) as DbProduct[], count: count ?? 0 };
     },
   });
 }
@@ -55,7 +54,7 @@ export function useCategories() {
     queryKey: ["product-categories"],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from("products")
+        .from("products_public" as any)
         .select("category")
         .not("category", "is", null);
       if (error) throw error;
