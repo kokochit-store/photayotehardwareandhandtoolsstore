@@ -281,6 +281,8 @@ const Admin = () => {
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
             {products.map((p) => {
               const isGenerating = generating.has(p.id);
+              const isUploading = uploading.has(p.id);
+              const busy = isGenerating || isUploading;
               return (
                 <Card key={p.id} className="overflow-hidden">
                   <div className="aspect-square bg-secondary relative flex items-center justify-center">
@@ -293,7 +295,7 @@ const Admin = () => {
                     ) : (
                       <ImageIcon className="h-10 w-10 text-muted-foreground/40" />
                     )}
-                    {isGenerating && (
+                    {busy && (
                       <div className="absolute inset-0 bg-background/80 flex items-center justify-center">
                         <Loader2 className="h-6 w-6 animate-spin text-primary" />
                       </div>
@@ -307,10 +309,31 @@ const Admin = () => {
                       variant={p.image_url ? "outline" : "default"}
                       className="w-full"
                       onClick={() => handleSingle(p)}
-                      disabled={isGenerating || bulkRunning}
+                      disabled={busy || bulkRunning}
                     >
                       <Sparkles className="h-3.5 w-3.5 mr-1.5" />
-                      {p.image_url ? "ပြန်ဖန်တီးမည်" : "ပုံ ဖန်တီးမည်"}
+                      {p.image_url ? "AI ပြန်ဖန်တီးမည်" : "AI ဖြင့် ဖန်တီးမည်"}
+                    </Button>
+                    <input
+                      ref={(el) => (fileInputs.current[p.id] = el)}
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={(e) => {
+                        const f = e.target.files?.[0];
+                        if (f) handleUpload(p, f);
+                        e.target.value = "";
+                      }}
+                    />
+                    <Button
+                      size="sm"
+                      variant="secondary"
+                      className="w-full"
+                      onClick={() => fileInputs.current[p.id]?.click()}
+                      disabled={busy || bulkRunning}
+                    >
+                      <Upload className="h-3.5 w-3.5 mr-1.5" />
+                      ကိုယ်တိုင် ပုံတင်မည်
                     </Button>
                   </div>
                 </Card>
