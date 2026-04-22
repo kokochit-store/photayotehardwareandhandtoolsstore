@@ -28,7 +28,7 @@ export function useProducts({ search, category, page }: UseProductsArgs) {
       const to = from + PAGE_SIZE - 1;
 
       let query = supabase
-        .from("products")
+        .from("products_public" as any)
         .select("*", { count: "exact" })
         .order("stock", { ascending: false })
         .order("name", { ascending: true })
@@ -54,7 +54,7 @@ export function useCategories() {
     queryKey: ["product-categories"],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from("products")
+        .from("products_public" as any)
         .select("category")
         .not("category", "is", null);
       if (error) throw error;
