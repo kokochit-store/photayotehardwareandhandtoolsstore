@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
-import { Loader2, Sparkles, LogOut, Image as ImageIcon, RefreshCw, Square } from "lucide-react";
+import { Loader2, Sparkles, LogOut, Image as ImageIcon, RefreshCw, Square, Upload } from "lucide-react";
 import { toast } from "sonner";
 
 interface DbProduct {
@@ -24,9 +24,11 @@ const Admin = () => {
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState<"all" | "missing" | "has">("missing");
   const [generating, setGenerating] = useState<Set<number>>(new Set());
+  const [uploading, setUploading] = useState<Set<number>>(new Set());
   const [bulkRunning, setBulkRunning] = useState(false);
   const [progress, setProgress] = useState({ done: 0, total: 0 });
   const stopRef = useRef(false);
+  const fileInputs = useRef<Record<number, HTMLInputElement | null>>({});
 
   const loadProducts = async () => {
     setLoading(true);
@@ -154,6 +156,45 @@ const Admin = () => {
     toast.info("ရပ်ဆိုင်းနေပါသည်...");
   };
 
+  const handleUpload = async (product: DbProduct, file: File) => {
+    if (!file.type.startsWith("image/")) {
+      toast.error("ပုံဖိုင်သာ ရွေးပါ");
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("ဖိုင်အရွယ် 5MB ထက် မပိုရပါ");
+      return;
+    }
+    setUploading((prev) => new Set(prev).add(product.id));
+    try {
+      const ext = file.name.split(".").pop()?.toLowerCase() || "jpg";
+      const path = `products/${product.id}-${Date.now()}.${ext}`;
+      const { error: upErr } = await supabase.storage
+        .from("product-images")
+        .upload(path, file, { cacheControl: "3600", upsert: true, contentType: file.type });
+      if (upErr) throw upErr;
+      const { data: pub } = supabase.storage.from("product-images").getPublicUrl(path);
+      const url = pub.publicUrl;
+      const { error: updErr } = await supabase
+        .from("products")
+        .update({ image_url: url })
+        .eq("id", product.id);
+      if (updErr) throw updErr;
+      setProducts((prev) =>
+        prev.map((p) => (p.id === product.id ? { ...p, image_url: url } : p))
+      );
+      toast.success(`${product.name} — ပုံ တင်ပြီးပါပြီ`);
+    } catch (err: any) {
+      toast.error(`${product.name}: ${err?.message || "တင်၍ မရပါ"}`);
+    } finally {
+      setUploading((prev) => {
+        const next = new Set(prev);
+        next.delete(product.id);
+        return next;
+      });
+    }
+  };
+
   return (
     <main className="min-h-screen bg-background">
       <header className="border-b bg-card">
@@ -240,6 +281,8 @@ const Admin = () => {
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
             {products.map((p) => {
               const isGenerating = generating.has(p.id);
+              const isUploading = uploading.has(p.id);
+              const busy = isGenerating || isUploading;
               return (
                 <Card key={p.id} className="overflow-hidden">
                   <div className="aspect-square bg-secondary relative flex items-center justify-center">
@@ -252,7 +295,7 @@ const Admin = () => {
                     ) : (
                       <ImageIcon className="h-10 w-10 text-muted-foreground/40" />
                     )}
-                    {isGenerating && (
+                    {busy && (
                       <div className="absolute inset-0 bg-background/80 flex items-center justify-center">
                         <Loader2 className="h-6 w-6 animate-spin text-primary" />
                       </div>
@@ -266,10 +309,31 @@ const Admin = () => {
                       variant={p.image_url ? "outline" : "default"}
                       className="w-full"
                       onClick={() => handleSingle(p)}
-                      disabled={isGenerating || bulkRunning}
+                      disabled={busy || bulkRunning}
                     >
                       <Sparkles className="h-3.5 w-3.5 mr-1.5" />
-                      {p.image_url ? "ပြန်ဖန်တီးမည်" : "ပုံ ဖန်တီးမည်"}
+                      {p.image_url ? "AI ပြန်ဖန်တီးမည်" : "AI ဖြင့် ဖန်တီးမည်"}
+                    </Button>
+                    <input
+                      ref={(el) => (fileInputs.current[p.id] = el)}
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={(e) => {
+                        const f = e.target.files?.[0];
+                        if (f) handleUpload(p, f);
+                        e.target.value = "";
+                      }}
+                    />
+                    <Button
+                      size="sm"
+                      variant="secondary"
+                      className="w-full"
+                      onClick={() => fileInputs.current[p.id]?.click()}
+                      disabled={busy || bulkRunning}
+                    >
+                      <Upload className="h-3.5 w-3.5 mr-1.5" />
+                      ကိုယ်တိုင် ပုံတင်မည်
                     </Button>
                   </div>
                 </Card>
