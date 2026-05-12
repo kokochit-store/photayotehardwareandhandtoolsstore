@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
 import { Loader2, Sparkles, LogOut, Image as ImageIcon, RefreshCw, Square, Upload } from "lucide-react";
 import { toast } from "sonner";
+import ProductImportExport from "@/components/ProductImportExport";
 
 interface DbProduct {
   id: number;
