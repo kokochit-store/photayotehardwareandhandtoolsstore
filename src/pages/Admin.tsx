@@ -5,18 +5,24 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
-import { Loader2, Sparkles, LogOut, Image as ImageIcon, RefreshCw, Square, Upload } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { toast } from "sonner";
 import ProductImportExport from "@/components/ProductImportExport";
+import { Loader2, Sparkles, LogOut, Image as ImageIcon, RefreshCw, Square, Upload, Tag, Minus, Plus, Pencil, Save, X } from "lucide-react";
 
 interface DbProduct {
   id: number;
   name: string;
+  sku: string | null;
   category: string | null;
   image_url: string | null;
+  sell_price: number;
+  stock: number;
 }
 
 const PAGE_LIMIT = 50;
+
+const formatPrice = (n: number) => `${n.toLocaleString("en-US")} ကျပ်`;
 
 const Admin = () => {
   const { signOut, user } = useAuth();
@@ -31,11 +37,22 @@ const Admin = () => {
   const stopRef = useRef(false);
   const fileInputs = useRef<Record<number, HTMLInputElement | null>>({});
 
+  const [pctValue, setPctValue] = useState<string>("");
+  const [pctModalOpen, setPctModalOpen] = useState(false);
+  const [pctPreview, setPctPreview] = useState<DbProduct[]>([]);
+
+  const [editId, setEditId] = useState<number | null>(null);
+  const [editName, setEditName] = useState("");
+  const [editSku, setEditSku] = useState("");
+  const [editPrice, setEditPrice] = useState<string>("");
+  const [editStock, setEditStock] = useState<string>("");
+  const [editCategory, setEditCategory] = useState("");
+
   const loadProducts = async () => {
     setLoading(true);
     let q = supabase
       .from("products")
-      .select("id, name, category, image_url")
+      .select("id, name, sku, category, image_url, sell_price, stock")
       .order("stock", { ascending: false })
       .limit(PAGE_LIMIT);
     if (filter === "missing") q = q.is("image_url", null);
@@ -196,6 +213,88 @@ const Admin = () => {
     }
   };
 
+  // ====== Price / Stock inline editing ======
+  const startEdit = (p: DbProduct) => {
+    setEditId(p.id);
+    setEditName(p.name);
+    setEditSku(p.sku || "");
+    setEditPrice(String(p.sell_price));
+    setEditStock(String(p.stock));
+    setEditCategory(p.category || "");
+  };
+
+  const cancelEdit = () => {
+    setEditId(null);
+  };
+
+  const saveEdit = async (id: number) => {
+    const price = Number(editPrice);
+    const stock = Number(editStock);
+    if (isNaN(price) || price < 0) {
+      toast.error("ဈေးနှုန်း အမှန်ရိုက်ထည့်ပါ");
+      return;
+    }
+    if (isNaN(stock) || stock < 0) {
+      toast.error("လက်ကျန် အမှန်ရိုက်ထည့်ပါ");
+      return;
+    }
+    const { error } = await supabase
+      .from("products")
+      .update({ name: editName, sku: editSku || null, category: editCategory || null, sell_price: price, stock })
+      .eq("id", id);
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
+    setProducts((prev) =>
+      prev.map((p) => (p.id === id ? { ...p, name: editName, sku: editSku || null, category: editCategory || null, sell_price: price, stock } : p))
+    );
+    setEditId(null);
+    toast.success("ဈေးနှုန်းနှင့် ပစ္စည်းအချက်အလက် ပြင်ဆင်ပြီးပါပြီ");
+  };
+
+  // ====== Bulk percentage price change ======
+  const openPctPreview = () => {
+    const pct = Number(pctValue);
+    if (isNaN(pct) || pct === 0) {
+      toast.error("% အမှန်ရိုက်ထည့်ပါ");
+      return;
+    }
+    const factor = 1 + pct / 100;
+    const preview = products.map((p) => ({
+      ...p,
+      sell_price: Math.round(p.sell_price * factor),
+    }));
+    setPctPreview(preview);
+    setPctModalOpen(true);
+  };
+
+  const applyPctChange = async () => {
+    const pct = Number(pctValue);
+    if (isNaN(pct)) return;
+    const factor = 1 + pct / 100;
+    setLoading(true);
+    const updates = products.map(async (p) => {
+      const newPrice = Math.round(p.sell_price * factor);
+      const { error } = await supabase
+        .from("products")
+        .update({ sell_price: newPrice })
+        .eq("id", p.id);
+      return { id: p.id, newPrice, error };
+    });
+    const results = await Promise.all(updates);
+    const errors = results.filter((r) => r.error);
+    if (errors.length > 0) {
+      toast.error(`${errors.length} ခု မအောင်မြင်ပါ`);
+    } else {
+      toast.success("ဈေးနှုန်း အကုန်ပြောင်းပြီးပါပြီ");
+    }
+    setPctModalOpen(false);
+    setPctValue("");
+    await loadProducts();
+    setLoading(false);
+  };
+
   return (
     <main className="min-h-screen bg-background">
       <header className="border-b bg-card">
@@ -212,6 +311,43 @@ const Admin = () => {
 
       <section className="container mx-auto px-4 py-8 space-y-6">
         <ProductImportExport onImported={loadProducts} />
+
+        {/* Price Manager */}
+        <Card className="p-5 space-y-4">
+          <div>
+            <h2 className="text-lg font-semibold flex items-center gap-2">
+              <Tag className="h-5 w-5 text-primary" /> ဈေးနှုန်း လွယ်ကူစီမံရန်
+            </h2>
+            <p className="text-sm text-muted-foreground mt-1">
+              % (ရာနှုန်းအလိုက်) သို့မဟုတ် တစ်ခုချင်း စိတ်တိုင်းကျ ပြင်ဆင်နိုင်ပါသည်။
+            </p>
+          </div>
+
+          <div className="flex flex-col sm:flex-row items-end sm:items-center gap-3 flex-wrap">
+            <div className="flex items-center gap-2">
+              <Button variant="outline" size="sm" onClick={() => setPctValue((v) => String((Number(v) || 0) - 5))}>
+                <Minus className="h-3 w-3" />
+              </Button>
+              <Input
+                type="number"
+                placeholder="% ဈေးနှုန်း ပြောင်းရန်"
+                className="w-36"
+                value={pctValue}
+                onChange={(e) => setPctValue(e.target.value)}
+              />
+              <Button variant="outline" size="sm" onClick={() => setPctValue((v) => String((Number(v) || 0) + 5))}>
+                <Plus className="h-3 w-3" />
+              </Button>
+            </div>
+            <Button onClick={openPctPreview} disabled={products.length === 0}>
+              % အလိုက် အကုန်ပြောင်းမည်
+            </Button>
+            <p className="text-xs text-muted-foreground">
+              +10 မှာတော့ ဈေးကို 10% တိုးမည်၊ -10 မှာတော့ 10% လျှော့မည်။
+            </p>
+          </div>
+        </Card>
+
         <Card className="p-5 space-y-4">
           <div className="flex items-start justify-between gap-4 flex-wrap">
             <div>
@@ -285,15 +421,13 @@ const Admin = () => {
               const isGenerating = generating.has(p.id);
               const isUploading = uploading.has(p.id);
               const busy = isGenerating || isUploading;
+              const isEditing = editId === p.id;
+
               return (
                 <Card key={p.id} className="overflow-hidden">
                   <div className="aspect-square bg-secondary relative flex items-center justify-center">
                     {p.image_url ? (
-                      <img
-                        src={p.image_url}
-                        alt={p.name}
-                        className="w-full h-full object-cover"
-                      />
+                      <img src={p.image_url} alt={p.name} className="w-full h-full object-cover" />
                     ) : (
                       <ImageIcon className="h-10 w-10 text-muted-foreground/40" />
                     )}
@@ -305,38 +439,75 @@ const Admin = () => {
                   </div>
                   <div className="p-3 space-y-2">
                     <p className="text-xs text-muted-foreground truncate">{p.category || "—"}</p>
-                    <h3 className="text-sm font-medium line-clamp-2 min-h-[2.5rem]">{p.name}</h3>
-                    <Button
-                      size="sm"
-                      variant={p.image_url ? "outline" : "default"}
-                      className="w-full"
-                      onClick={() => handleSingle(p)}
-                      disabled={busy || bulkRunning}
-                    >
-                      <Sparkles className="h-3.5 w-3.5 mr-1.5" />
-                      {p.image_url ? "AI ပြန်ဖန်တီးမည်" : "AI ဖြင့် ဖန်တီးမည်"}
-                    </Button>
-                    <input
-                      ref={(el) => (fileInputs.current[p.id] = el)}
-                      type="file"
-                      accept="image/*"
-                      className="hidden"
-                      onChange={(e) => {
-                        const f = e.target.files?.[0];
-                        if (f) handleUpload(p, f);
-                        e.target.value = "";
-                      }}
-                    />
-                    <Button
-                      size="sm"
-                      variant="secondary"
-                      className="w-full"
-                      onClick={() => fileInputs.current[p.id]?.click()}
-                      disabled={busy || bulkRunning}
-                    >
-                      <Upload className="h-3.5 w-3.5 mr-1.5" />
-                      ကိုယ်တိုင် ပုံတင်မည်
-                    </Button>
+
+                    {isEditing ? (
+                      <div className="space-y-2">
+                        <Input size={1} className="text-xs" value={editName} onChange={(e) => setEditName(e.target.value)} placeholder="အမည်" />
+                        <Input size={1} className="text-xs" value={editSku} onChange={(e) => setEditSku(e.target.value)} placeholder="SKU" />
+                        <Input size={1} className="text-xs" value={editCategory} onChange={(e) => setEditCategory(e.target.value)} placeholder="အမျိုးအစား" />
+                        <div className="flex gap-2">
+                          <Input size={1} type="number" className="text-xs" value={editPrice} onChange={(e) => setEditPrice(e.target.value)} placeholder="ဈေးနှုန်း" />
+                          <Input size={1} type="number" className="text-xs" value={editStock} onChange={(e) => setEditStock(e.target.value)} placeholder="လက်ကျန်" />
+                        </div>
+                        <div className="flex gap-2">
+                          <Button size="sm" variant="default" className="flex-1" onClick={() => saveEdit(p.id)}>
+                            <Save className="h-3.5 w-3.5 mr-1" /> သိမ်းမည်
+                          </Button>
+                          <Button size="sm" variant="outline" onClick={cancelEdit}>
+                            <X className="h-3.5 w-3.5" />
+                          </Button>
+                        </div>
+                      </div>
+                    ) : (
+                      <>
+                        <h3 className="text-sm font-medium line-clamp-2 min-h-[2.5rem]">{p.name}</h3>
+                        <div className="flex items-center justify-between text-xs">
+                          <span className="text-primary font-semibold">{formatPrice(p.sell_price)}</span>
+                          <span className="text-muted-foreground">{p.stock} လက်ကျန်</span>
+                        </div>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="w-full"
+                          onClick={() => startEdit(p)}
+                          disabled={busy || bulkRunning}
+                        >
+                          <Pencil className="h-3.5 w-3.5 mr-1.5" />
+                          ပြင်ဆင်မည်
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant={p.image_url ? "outline" : "default"}
+                          className="w-full"
+                          onClick={() => handleSingle(p)}
+                          disabled={busy || bulkRunning}
+                        >
+                          <Sparkles className="h-3.5 w-3.5 mr-1.5" />
+                          {p.image_url ? "AI ပြန်ဖန်တီးမည်" : "AI ဖြင့် ဖန်တီးမည်"}
+                        </Button>
+                        <input
+                          ref={(el) => (fileInputs.current[p.id] = el)}
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          onChange={(e) => {
+                            const f = e.target.files?.[0];
+                            if (f) handleUpload(p, f);
+                            e.target.value = "";
+                          }}
+                        />
+                        <Button
+                          size="sm"
+                          variant="secondary"
+                          className="w-full"
+                          onClick={() => fileInputs.current[p.id]?.click()}
+                          disabled={busy || bulkRunning}
+                        >
+                          <Upload className="h-3.5 w-3.5 mr-1.5" />
+                          ကိုယ်တိုင် ပုံတင်မည်
+                        </Button>
+                      </>
+                    )}
                   </div>
                 </Card>
               );
@@ -344,6 +515,40 @@ const Admin = () => {
           </div>
         )}
       </section>
+
+      {/* Percentage change confirmation dialog */}
+      <Dialog open={pctModalOpen} onOpenChange={setPctModalOpen}>
+        <DialogContent className="max-w-xl">
+          <DialogHeader>
+            <DialogTitle>ဈေးနှုန်း ပြောင်းလဲမှု အတည်ပြုရန်</DialogTitle>
+            <DialogDescription>
+              {Number(pctValue) > 0
+                ? `ဈေးနှုန်းအားလုံး ${Number(pctValue)}% တိုးမည်`
+                : `ဈေးနှုန်းအားလုံး ${Math.abs(Number(pctValue))}% လျှော့မည်`}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="max-h-72 overflow-auto space-y-2">
+            {pctPreview.map((pp) => {
+              const orig = products.find((x) => x.id === pp.id);
+              return (
+                <div key={pp.id} className="flex items-center justify-between text-sm border-b pb-2">
+                  <span className="truncate max-w-[50%]">{pp.name}</span>
+                  <div className="flex items-center gap-3">
+                    <span className="text-muted-foreground line-through">{orig ? formatPrice(orig.sell_price) : "—"}</span>
+                    <span className="text-primary font-semibold">{formatPrice(pp.sell_price)}</span>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setPctModalOpen(false)}>
+              မလုပ်ပါ
+            </Button>
+            <Button onClick={applyPctChange}>အတည်ပြုပြီး ပြောင်းမည်</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </main>
   );
 };
