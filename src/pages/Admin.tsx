@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
 import { Loader2, Sparkles, LogOut, Image as ImageIcon, RefreshCw, Square, Upload } from "lucide-react";
 import { toast } from "sonner";
+import ProductImportExport from "@/components/ProductImportExport";
 
 interface DbProduct {
   id: number;
@@ -210,6 +211,7 @@ const Admin = () => {
       </header>
 
       <section className="container mx-auto px-4 py-8 space-y-6">
+        <ProductImportExport onImported={loadProducts} />
         <Card className="p-5 space-y-4">
           <div className="flex items-start justify-between gap-4 flex-wrap">
             <div>
