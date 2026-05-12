@@ -211,6 +211,7 @@ const Admin = () => {
       </header>
 
       <section className="container mx-auto px-4 py-8 space-y-6">
+        <ProductImportExport onImported={loadProducts} />
         <Card className="p-5 space-y-4">
           <div className="flex items-start justify-between gap-4 flex-wrap">
             <div>
