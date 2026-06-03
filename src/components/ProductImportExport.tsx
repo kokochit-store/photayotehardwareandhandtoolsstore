@@ -6,32 +6,35 @@ import { Card } from "@/components/ui/card";
 import { Download, Upload, FileJson, FileSpreadsheet, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
-type Row = {
-  name?: string;
-  sku?: string | null;
-  category?: string | null;
-  description?: string | null;
-  image_url?: string | null;
-  stock?: number | string | null;
-  sell_price?: number | string | null;
-  cost_price?: number | string | null;
-};
+type Row = Record<string, any>;
 
 const toNum = (v: unknown, def = 0): number => {
   if (v === null || v === undefined || v === "") return def;
-  const n = Number(String(v).replace(/[, ]/g, ""));
+  const n = Number(String(v).replace(/[,\s]/g, "").replace(/[^\d.\-]/g, ""));
   return Number.isFinite(n) ? n : def;
 };
 
+// Accept many field-name variants from offline apps (camelCase, snake_case, Title Case, Myanmar)
+const pick = (r: Row, keys: string[]) => {
+  const norm = (s: string) => s.toLowerCase().replace(/[\s_\-]+/g, "");
+  const map: Record<string, any> = {};
+  Object.keys(r).forEach((k) => (map[norm(k)] = r[k]));
+  for (const k of keys) {
+    const v = map[norm(k)];
+    if (v !== undefined && v !== null && v !== "") return v;
+  }
+  return undefined;
+};
+
 const normalize = (r: Row) => ({
-  name: String(r.name ?? "").trim(),
-  sku: r.sku ? String(r.sku).trim() : null,
-  category: r.category ? String(r.category).trim() : null,
-  description: r.description ? String(r.description) : null,
-  image_url: r.image_url ? String(r.image_url) : null,
-  stock: Math.max(0, Math.floor(toNum(r.stock, 0))),
-  sell_price: toNum(r.sell_price, 0),
-  cost_price: toNum(r.cost_price, 0),
+  name: String(pick(r, ["name", "productname", "title", "အမည်", "ပစ္စည်းအမည်"]) ?? "").trim(),
+  sku: (() => { const v = pick(r, ["sku", "code", "productcode", "ကုဒ်"]); return v ? String(v).trim() : null; })(),
+  category: (() => { const v = pick(r, ["category", "type", "အမျိုးအစား"]); return v ? String(v).trim() : null; })(),
+  description: (() => { const v = pick(r, ["description", "desc", "note", "ဖော်ပြချက်"]); return v ? String(v) : null; })(),
+  image_url: (() => { const v = pick(r, ["image_url", "imageurl", "image", "photo", "img"]); return v ? String(v) : null; })(),
+  stock: Math.max(0, Math.floor(toNum(pick(r, ["stock", "qty", "quantity", "လက်ကျန်"]), 0))),
+  sell_price: toNum(pick(r, ["sell_price", "sellprice", "price", "saleprice", "ဈေး", "ရောင်းဈေး"]), 0),
+  cost_price: toNum(pick(r, ["cost_price", "costprice", "cost", "buyprice", "ဝယ်ဈေး"]), 0),
 });
 
 export default function ProductImportExport({ onImported }: { onImported?: () => void }) {
