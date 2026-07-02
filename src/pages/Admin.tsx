@@ -422,6 +422,9 @@ const Admin = () => {
                 ပစ္စည်းအားလုံး ({totalCount}) ကို စာမျက်နှာတိုင်းမှ ပြင်ဆင်/ပုံတင် နိုင်ပါသည်။
               </p>
             </div>
+            <Button onClick={() => { resetNew(); setAddOpen(true); }}>
+              <PlusCircle className="h-4 w-4 mr-2" /> ပစ္စည်းအသစ် ထည့်မည်
+            </Button>
           </div>
 
           <div className="grid sm:grid-cols-3 gap-3">
