@@ -8,7 +8,7 @@ import { Progress } from "@/components/ui/progress";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { toast } from "sonner";
 import ProductImportExport from "@/components/ProductImportExport";
-import { Loader2, Sparkles, LogOut, Image as ImageIcon, RefreshCw, Square, Upload, Tag, Minus, Plus, Pencil, Save, X, ChevronLeft, ChevronRight } from "lucide-react";
+import { Loader2, Sparkles, LogOut, Image as ImageIcon, RefreshCw, Square, Upload, Tag, Minus, Plus, Pencil, Save, X, ChevronLeft, ChevronRight, PlusCircle } from "lucide-react";
 
 interface DbProduct {
   id: number;
@@ -95,6 +95,61 @@ const Admin = () => {
   const [editPrice, setEditPrice] = useState<string>("");
   const [editStock, setEditStock] = useState<string>("");
   const [editCategory, setEditCategory] = useState("");
+
+  // Add new product
+  const [addOpen, setAddOpen] = useState(false);
+  const [addSaving, setAddSaving] = useState(false);
+  const [newName, setNewName] = useState("");
+  const [newSku, setNewSku] = useState("");
+  const [newCategory, setNewCategory] = useState("");
+  const [newPrice, setNewPrice] = useState("");
+  const [newCost, setNewCost] = useState("");
+  const [newStock, setNewStock] = useState("");
+  const [newDescription, setNewDescription] = useState("");
+
+  const resetNew = () => {
+    setNewName(""); setNewSku(""); setNewCategory("");
+    setNewPrice(""); setNewCost(""); setNewStock(""); setNewDescription("");
+  };
+
+  const addProduct = async () => {
+    if (!newName.trim()) { toast.error("အမည် ရိုက်ထည့်ပါ"); return; }
+    const price = Number(newPrice) || 0;
+    const cost = Number(newCost) || 0;
+    const stock = Number(newStock) || 0;
+    if (price < 0 || cost < 0 || stock < 0) { toast.error("ကိန်းဂဏန်း အမှန်ရိုက်ထည့်ပါ"); return; }
+    setAddSaving(true);
+    try {
+      // Compute next id (products.id has no default sequence)
+      const { data: maxRow, error: maxErr } = await supabase
+        .from("products")
+        .select("id")
+        .order("id", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      if (maxErr) throw maxErr;
+      const nextId = ((maxRow?.id as number) || 0) + 1;
+      const { error } = await supabase.from("products").insert({
+        id: nextId,
+        name: newName.trim(),
+        sku: newSku.trim() || null,
+        category: newCategory.trim() || null,
+        description: newDescription.trim() || null,
+        sell_price: price,
+        cost_price: cost,
+        stock,
+      });
+      if (error) throw error;
+      toast.success("ပစ္စည်းအသစ် ထည့်ပြီးပါပြီ");
+      setAddOpen(false);
+      resetNew();
+      await loadProducts(1);
+    } catch (e: any) {
+      toast.error(e?.message || "ထည့်၍ မရပါ");
+    } finally {
+      setAddSaving(false);
+    }
+  };
 
   const buildQuery = (forCount = false) => {
     let q = supabase
@@ -367,6 +422,9 @@ const Admin = () => {
                 ပစ္စည်းအားလုံး ({totalCount}) ကို စာမျက်နှာတိုင်းမှ ပြင်ဆင်/ပုံတင် နိုင်ပါသည်။
               </p>
             </div>
+            <Button onClick={() => { resetNew(); setAddOpen(true); }}>
+              <PlusCircle className="h-4 w-4 mr-2" /> ပစ္စည်းအသစ် ထည့်မည်
+            </Button>
           </div>
 
           <div className="grid sm:grid-cols-3 gap-3">
@@ -542,6 +600,36 @@ const Admin = () => {
             <Button onClick={applyPctChange} disabled={pctApplying}>
               {pctApplying && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
               အတည်ပြုပြီး ပြောင်းမည်
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Add new product dialog */}
+      <Dialog open={addOpen} onOpenChange={(v) => { if (!addSaving) setAddOpen(v); }}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle>ပစ္စည်းအသစ် ထည့်ရန်</DialogTitle>
+            <DialogDescription>အောက်ပါအချက်အလက်များကို ဖြည့်ပါ။ ပုံကို ထည့်ပြီးမှ AI ဖြင့် သို့မဟုတ် ကိုယ်တိုင် တင်နိုင်ပါသည်။</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-3">
+            <Input placeholder="အမည် *" value={newName} onChange={(e) => setNewName(e.target.value)} />
+            <div className="grid grid-cols-2 gap-3">
+              <Input placeholder="SKU / ကုဒ်" value={newSku} onChange={(e) => setNewSku(e.target.value)} />
+              <Input placeholder="အမျိုးအစား" value={newCategory} onChange={(e) => setNewCategory(e.target.value)} />
+            </div>
+            <div className="grid grid-cols-3 gap-3">
+              <Input type="number" placeholder="ရောင်းဈေး" value={newPrice} onChange={(e) => setNewPrice(e.target.value)} />
+              <Input type="number" placeholder="ဝယ်ဈေး" value={newCost} onChange={(e) => setNewCost(e.target.value)} />
+              <Input type="number" placeholder="လက်ကျန်" value={newStock} onChange={(e) => setNewStock(e.target.value)} />
+            </div>
+            <Input placeholder="ဖော်ပြချက် (ရွေးချယ်)" value={newDescription} onChange={(e) => setNewDescription(e.target.value)} />
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setAddOpen(false)} disabled={addSaving}>မလုပ်ပါ</Button>
+            <Button onClick={addProduct} disabled={addSaving}>
+              {addSaving && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+              ထည့်မည်
             </Button>
           </DialogFooter>
         </DialogContent>
