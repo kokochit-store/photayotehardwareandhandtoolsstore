@@ -604,6 +604,36 @@ const Admin = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Add new product dialog */}
+      <Dialog open={addOpen} onOpenChange={(v) => { if (!addSaving) setAddOpen(v); }}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle>ပစ္စည်းအသစ် ထည့်ရန်</DialogTitle>
+            <DialogDescription>အောက်ပါအချက်အလက်များကို ဖြည့်ပါ။ ပုံကို ထည့်ပြီးမှ AI ဖြင့် သို့မဟုတ် ကိုယ်တိုင် တင်နိုင်ပါသည်။</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-3">
+            <Input placeholder="အမည် *" value={newName} onChange={(e) => setNewName(e.target.value)} />
+            <div className="grid grid-cols-2 gap-3">
+              <Input placeholder="SKU / ကုဒ်" value={newSku} onChange={(e) => setNewSku(e.target.value)} />
+              <Input placeholder="အမျိုးအစား" value={newCategory} onChange={(e) => setNewCategory(e.target.value)} />
+            </div>
+            <div className="grid grid-cols-3 gap-3">
+              <Input type="number" placeholder="ရောင်းဈေး" value={newPrice} onChange={(e) => setNewPrice(e.target.value)} />
+              <Input type="number" placeholder="ဝယ်ဈေး" value={newCost} onChange={(e) => setNewCost(e.target.value)} />
+              <Input type="number" placeholder="လက်ကျန်" value={newStock} onChange={(e) => setNewStock(e.target.value)} />
+            </div>
+            <Input placeholder="ဖော်ပြချက် (ရွေးချယ်)" value={newDescription} onChange={(e) => setNewDescription(e.target.value)} />
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setAddOpen(false)} disabled={addSaving}>မလုပ်ပါ</Button>
+            <Button onClick={addProduct} disabled={addSaving}>
+              {addSaving && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+              ထည့်မည်
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </main>
   );
 };
