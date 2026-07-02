@@ -96,6 +96,61 @@ const Admin = () => {
   const [editStock, setEditStock] = useState<string>("");
   const [editCategory, setEditCategory] = useState("");
 
+  // Add new product
+  const [addOpen, setAddOpen] = useState(false);
+  const [addSaving, setAddSaving] = useState(false);
+  const [newName, setNewName] = useState("");
+  const [newSku, setNewSku] = useState("");
+  const [newCategory, setNewCategory] = useState("");
+  const [newPrice, setNewPrice] = useState("");
+  const [newCost, setNewCost] = useState("");
+  const [newStock, setNewStock] = useState("");
+  const [newDescription, setNewDescription] = useState("");
+
+  const resetNew = () => {
+    setNewName(""); setNewSku(""); setNewCategory("");
+    setNewPrice(""); setNewCost(""); setNewStock(""); setNewDescription("");
+  };
+
+  const addProduct = async () => {
+    if (!newName.trim()) { toast.error("အမည် ရိုက်ထည့်ပါ"); return; }
+    const price = Number(newPrice) || 0;
+    const cost = Number(newCost) || 0;
+    const stock = Number(newStock) || 0;
+    if (price < 0 || cost < 0 || stock < 0) { toast.error("ကိန်းဂဏန်း အမှန်ရိုက်ထည့်ပါ"); return; }
+    setAddSaving(true);
+    try {
+      // Compute next id (products.id has no default sequence)
+      const { data: maxRow, error: maxErr } = await supabase
+        .from("products")
+        .select("id")
+        .order("id", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      if (maxErr) throw maxErr;
+      const nextId = ((maxRow?.id as number) || 0) + 1;
+      const { error } = await supabase.from("products").insert({
+        id: nextId,
+        name: newName.trim(),
+        sku: newSku.trim() || null,
+        category: newCategory.trim() || null,
+        description: newDescription.trim() || null,
+        sell_price: price,
+        cost_price: cost,
+        stock,
+      });
+      if (error) throw error;
+      toast.success("ပစ္စည်းအသစ် ထည့်ပြီးပါပြီ");
+      setAddOpen(false);
+      resetNew();
+      await loadProducts(1);
+    } catch (e: any) {
+      toast.error(e?.message || "ထည့်၍ မရပါ");
+    } finally {
+      setAddSaving(false);
+    }
+  };
+
   const buildQuery = (forCount = false) => {
     let q = supabase
       .from("products")
