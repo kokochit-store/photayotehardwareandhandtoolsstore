@@ -1,0 +1,1 @@
+GRANT SELECT ON public.products_public TO anon, authenticated;
