@@ -59,18 +59,22 @@ const HeroSection = () => {
           {/* Mini trust bar */}
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 max-w-2xl">
             {[
-              { icon: Truck, label: "Fast Delivery", sub: "မြန်ဆန်သော ပို့ဆောင်မှု" },
+              { icon: Truck, label: "", sub: "" },
               { icon: ShieldCheck, label: "Quality Guarantee", sub: "အာမခံ ပစ္စည်းများ" },
               { icon: Wrench, label: "1000+ Tools", sub: "ရွေးချယ်စရာ များစွာ" },
             ].map(({ icon: Icon, label, sub }) => (
-              <div key={label} className="flex items-center gap-3 text-white">
-                <div className="h-10 w-10 rounded-xl bg-white/10 border border-white/20 grid place-items-center shrink-0">
-                  <Icon className="h-5 w-5 text-primary" />
-                </div>
-                <div className="min-w-0">
-                  <p className="text-sm font-semibold leading-tight">{label}</p>
-                  <p className="text-xs text-white/60 truncate">{sub}</p>
-                </div>
+              <div key={label || Math.random()} className="flex items-center gap-3 text-white">
+                {label && (
+                  <>
+                    <div className="h-10 w-10 rounded-xl bg-white/10 border border-white/20 grid place-items-center shrink-0">
+                      <Icon className="h-5 w-5 text-primary" />
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-sm font-semibold leading-tight">{label}</p>
+                      <p className="text-xs text-white/60 truncate">{sub}</p>
+                    </div>
+                  </>
+                )}
               </div>
             ))}
           </div>

@@ -25,7 +25,7 @@ const Navbar = () => {
       {/* Top announcement */}
       <div className="bg-slate-900 text-white text-xs">
         <div className="container mx-auto px-4 h-8 flex items-center justify-between">
-          <span className="tracking-wide">မြန်မာနိုင်ငံအနှံ့ Fast Delivery • Quality Guarantee</span>
+          <span className="tracking-wide">အရည်အသွေးအကောင်းဆုံး အာမခံပါကုန်ပစ္စည်းများနဲ့ စိတ်ချမ်းသာစွာ သုံးလိုက်ပါ</span>
           <span className="hidden sm:inline text-white/70">📞 09-796959551</span>
         </div>
       </div>
