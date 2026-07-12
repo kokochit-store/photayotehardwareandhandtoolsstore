@@ -2,7 +2,6 @@ import { ShieldCheck, Truck, Award, Headphones, RotateCcw } from "lucide-react";
 
 const items = [
   { icon: ShieldCheck, title: "Secure Payments", desc: "လုံခြုံသော ငွေပေးချေမှု" },
-  { icon: Truck, title: "Fast Delivery", desc: "မြန်ဆန်သော ပို့ဆောင်မှု" },
   { icon: Award, title: "Quality Guarantee", desc: "အရည်အသွေး အာမခံ" },
   { icon: Headphones, title: "24/7 Support", desc: "အချိန်ပြည့် ကူညီပေးမည်" },
   { icon: RotateCcw, title: "Easy Returns", desc: "လွယ်ကူသော ပြန်လဲမှု" },
