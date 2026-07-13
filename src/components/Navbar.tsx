@@ -3,6 +3,7 @@ import { Link, NavLink } from "react-router-dom";
 import { useCart } from "@/contexts/CartContext";
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
+import logoAsset from "@/assets/photayote-logo.png.asset.json";
 
 const categories = [
   "Hand Tools",
