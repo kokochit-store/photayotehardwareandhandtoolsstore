@@ -1,4 +1,6 @@
-import { X, Plus, Minus, Trash2, ShoppingBag } from "lucide-react";
+import { X, Plus, Minus, Trash2, ShoppingBag, Printer } from "lucide-react";
+import { printReceipt } from "@/lib/printReceipt";
+import ReceiptSettingsDialog from "@/components/ReceiptSettingsDialog";
 import { useCart } from "@/contexts/CartContext";
 import { Button } from "@/components/ui/button";
 
@@ -88,15 +90,33 @@ const CartDrawer = () => {
                 <span className="text-sm text-muted-foreground">စုစုပေါင်း</span>
                 <span className="text-lg font-display font-bold">{formatPrice(totalPrice)}</span>
               </div>
-              <Button className="w-full" size="lg">
-                Checkout
-              </Button>
-              <button
-                onClick={clearCart}
-                className="w-full text-xs text-muted-foreground hover:text-destructive transition-colors"
+              <Button
+                className="w-full gap-2"
+                size="lg"
+                onClick={() =>
+                  printReceipt(
+                    items.map((it) => ({ name: it.product.name, qty: it.quantity, price: it.product.price })),
+                    totalPrice,
+                  )
+                }
               >
-                အားလုံးဖျက်မယ်
-              </button>
+                <Printer className="h-4 w-4" /> Print Receipt
+              </Button>
+              <div className="flex items-center justify-between">
+                <ReceiptSettingsDialog
+                  trigger={
+                    <button className="text-xs text-muted-foreground hover:text-primary transition-colors underline">
+                      Print Setup
+                    </button>
+                  }
+                />
+                <button
+                  onClick={clearCart}
+                  className="text-xs text-muted-foreground hover:text-destructive transition-colors"
+                >
+                  အားလုံးဖျက်မယ်
+                </button>
+              </div>
             </div>
           </>
         )}
