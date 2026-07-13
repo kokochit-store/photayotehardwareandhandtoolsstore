@@ -42,9 +42,11 @@ const Navbar = () => {
         </button>
 
         <Link to="/" className="flex items-center gap-2 shrink-0">
-          <div className="h-9 w-9 md:h-10 md:w-10 rounded-xl bg-gradient-orange grid place-items-center shadow-orange">
-            <span className="font-display text-white text-lg">ဖ</span>
-          </div>
+          <img
+            src={logoAsset.url}
+            alt="Photayote Power Tools logo"
+            className="h-10 w-10 md:h-12 md:w-12 rounded-full object-cover shadow-orange ring-2 ring-primary/20"
+          />
           <div className="hidden sm:flex flex-col leading-tight">
             <span className="font-display text-sm md:text-base text-foreground uppercase tracking-wide">ဖိုးတရုတ်</span>
             <span className="text-[10px] md:text-xs text-muted-foreground uppercase tracking-widest">Hardware Store</span>
