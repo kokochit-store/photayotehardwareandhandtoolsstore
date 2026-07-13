@@ -1,0 +1,2 @@
+GRANT SELECT ON public.products_public TO anon, authenticated;
+GRANT SELECT (id, name, sku, category, sell_price, stock, image_url, description, created_at, updated_at) ON public.products TO anon, authenticated;
