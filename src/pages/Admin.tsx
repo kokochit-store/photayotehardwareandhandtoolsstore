@@ -9,6 +9,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { toast } from "sonner";
 import ProductImportExport from "@/components/ProductImportExport";
 import ReorderList from "@/components/ReorderList";
+import SalesReports from "@/components/SalesReports";
 import { Loader2, Sparkles, LogOut, Image as ImageIcon, RefreshCw, Square, Upload, Tag, Minus, Plus, Pencil, Save, X, ChevronLeft, ChevronRight, PlusCircle } from "lucide-react";
 
 interface DbProduct {
@@ -380,7 +381,10 @@ const Admin = () => {
       <section className="container mx-auto px-4 py-8 space-y-6">
         <ProductImportExport onImported={() => loadProducts(1)} />
 
+        <SalesReports />
+
         <ReorderList />
+
 
         {/* Price Manager */}
         <Card className="p-5 space-y-4">
