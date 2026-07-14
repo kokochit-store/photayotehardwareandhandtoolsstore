@@ -188,6 +188,50 @@ export type Database = {
       }
     }
     Functions: {
+      admin_list_low_stock: {
+        Args: { _threshold: number }
+        Returns: {
+          category: string | null
+          cost_price: number
+          created_at: string
+          description: string | null
+          id: number
+          image_url: string | null
+          name: string
+          sell_price: number
+          sku: string | null
+          stock: number
+          updated_at: string
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "products"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
+      admin_list_products: {
+        Args: never
+        Returns: {
+          category: string | null
+          cost_price: number
+          created_at: string
+          description: string | null
+          id: number
+          image_url: string | null
+          name: string
+          sell_price: number
+          sku: string | null
+          stock: number
+          updated_at: string
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "products"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
