@@ -3,6 +3,9 @@ import { printReceipt } from "@/lib/printReceipt";
 import ReceiptSettingsDialog from "@/components/ReceiptSettingsDialog";
 import { useCart } from "@/contexts/CartContext";
 import { Button } from "@/components/ui/button";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
+
 
 const formatPrice = (price: number) =>
   new Intl.NumberFormat("my-MM").format(price) + " ကျပ်";
@@ -93,15 +96,43 @@ const CartDrawer = () => {
               <Button
                 className="w-full gap-2"
                 size="lg"
-                onClick={() =>
-                  printReceipt(
-                    items.map((it) => ({ name: it.product.name, qty: it.quantity, price: it.product.price })),
-                    totalPrice,
-                  )
-                }
+                onClick={async () => {
+                  const receiptItems = items.map((it) => ({
+                    name: it.product.name,
+                    qty: it.quantity,
+                    price: it.product.price,
+                  }));
+                  try {
+                    const { data: sale, error } = await supabase
+                      .from("sales")
+                      .insert({
+                        total: totalPrice,
+                        item_count: items.reduce((s, it) => s + it.quantity, 0),
+                      })
+                      .select("id")
+                      .single();
+                    if (error) throw error;
+                    if (sale) {
+                      await supabase.from("sale_items").insert(
+                        items.map((it) => ({
+                          sale_id: sale.id,
+                          product_id: it.product.id ? Number(it.product.id) : null,
+                          product_name: it.product.name,
+                          qty: it.quantity,
+                          unit_price: it.product.price,
+                          line_total: it.product.price * it.quantity,
+                        })),
+                      );
+                    }
+                  } catch (e: any) {
+                    toast.error(`ရောင်းအားမှတ်တမ်း သိမ်း၍မရ: ${e?.message || ""}`);
+                  }
+                  printReceipt(receiptItems, totalPrice);
+                }}
               >
                 <Printer className="h-4 w-4" /> Print Receipt
               </Button>
+
               <div className="flex items-center justify-between">
                 <ReceiptSettingsDialog
                   trigger={

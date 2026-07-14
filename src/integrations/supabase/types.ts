@@ -56,6 +56,74 @@ export type Database = {
         }
         Relationships: []
       }
+      sale_items: {
+        Row: {
+          created_at: string
+          id: string
+          line_total: number
+          product_id: number | null
+          product_name: string
+          qty: number
+          sale_id: string
+          unit_price: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          line_total: number
+          product_id?: number | null
+          product_name: string
+          qty: number
+          sale_id: string
+          unit_price: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          line_total?: number
+          product_id?: number | null
+          product_name?: string
+          qty?: number
+          sale_id?: string
+          unit_price?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sale_items_sale_id_fkey"
+            columns: ["sale_id"]
+            isOneToOne: false
+            referencedRelation: "sales"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      sales: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          id: string
+          item_count: number
+          note: string | null
+          total: number
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          item_count?: number
+          note?: string | null
+          total?: number
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          item_count?: number
+          note?: string | null
+          total?: number
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string
