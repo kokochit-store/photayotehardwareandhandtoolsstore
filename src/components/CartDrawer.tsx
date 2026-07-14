@@ -3,6 +3,9 @@ import { printReceipt } from "@/lib/printReceipt";
 import ReceiptSettingsDialog from "@/components/ReceiptSettingsDialog";
 import { useCart } from "@/contexts/CartContext";
 import { Button } from "@/components/ui/button";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
+
 
 const formatPrice = (price: number) =>
   new Intl.NumberFormat("my-MM").format(price) + " ကျပ်";
