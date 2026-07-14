@@ -45,12 +45,18 @@ export default function ProductImportExport({ onImported }: { onImported?: () =>
   const exportData = async (format: "json" | "csv") => {
     setBusy(true);
     try {
-      const { data, error } = await supabase
-        .from("products")
-        .select("name, sku, category, description, image_url, stock, sell_price, cost_price")
-        .order("id", { ascending: true });
+      const { data, error } = await supabase.rpc("admin_list_products");
       if (error) throw error;
-      const rows = data || [];
+      const rows = (data || []).map((p: any) => ({
+        name: p.name,
+        sku: p.sku,
+        category: p.category,
+        description: p.description,
+        image_url: p.image_url,
+        stock: p.stock,
+        sell_price: p.sell_price,
+        cost_price: p.cost_price,
+      }));
       let blob: Blob;
       let filename: string;
       const stamp = new Date().toISOString().slice(0, 10);
@@ -59,15 +65,18 @@ export default function ProductImportExport({ onImported }: { onImported?: () =>
         filename = `products-backup-${stamp}.json`;
       } else {
         const csv = Papa.unparse(rows);
-        blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
+        // UTF-8 BOM so Excel renders Myanmar text correctly
+        blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8" });
         filename = `products-backup-${stamp}.csv`;
       }
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
       a.download = filename;
+      document.body.appendChild(a);
       a.click();
-      URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
       toast.success(`${rows.length} ပစ္စည်း ထုတ်ယူပြီးပါပြီ`);
     } catch (e: any) {
       toast.error(e?.message || "Export မအောင်မြင်ပါ");
@@ -75,6 +84,7 @@ export default function ProductImportExport({ onImported }: { onImported?: () =>
       setBusy(false);
     }
   };
+
 
   const parseFile = (file: File): Promise<Row[]> =>
     new Promise((resolve, reject) => {

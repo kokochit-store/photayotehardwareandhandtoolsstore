@@ -26,24 +26,26 @@ export default function ReorderList() {
 
   const load = async () => {
     setLoading(true);
-    const { data, error } = await supabase
-      .from("products")
-      .select("id, name, sku, category, stock, sell_price, cost_price")
-      .lte("stock", threshold)
-      .order("stock", { ascending: true })
-      .order("name", { ascending: true });
+    const { data, error } = await supabase.rpc("admin_list_low_stock", { _threshold: threshold });
     if (error) {
       toast.error(error.message);
     } else {
       setRows(
         (data || []).map((p: any) => ({
-          ...p,
+          id: p.id,
+          name: p.name,
+          sku: p.sku,
+          category: p.category,
+          stock: p.stock,
+          sell_price: p.sell_price,
+          cost_price: p.cost_price,
           reorder_qty: Math.max(defaultQty - (p.stock || 0), defaultQty),
         }))
       );
     }
     setLoading(false);
   };
+
 
   useEffect(() => {
     load();
@@ -77,15 +79,18 @@ export default function ReorderList() {
       blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
       filename = `reorder-list-${stamp}.json`;
     } else {
-      blob = new Blob([Papa.unparse(payload)], { type: "text/csv;charset=utf-8" });
+      blob = new Blob(["\uFEFF" + Papa.unparse(payload)], { type: "text/csv;charset=utf-8" });
       filename = `reorder-list-${stamp}.csv`;
     }
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
     a.download = filename;
+    document.body.appendChild(a);
     a.click();
-    URL.revokeObjectURL(url);
+    document.body.removeChild(a);
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+
     toast.success(`${rows.length} ပစ္စည်း ထုတ်ယူပြီးပါပြီ`);
   };
 
