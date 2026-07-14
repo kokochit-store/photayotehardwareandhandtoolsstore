@@ -75,13 +75,16 @@ export default function SalesReports() {
       items_sold: g.items,
       total_sales: Math.round(g.total),
     }));
-    const blob = new Blob([Papa.unparse(rows)], { type: "text/csv;charset=utf-8" });
+    const blob = new Blob(["\uFEFF" + Papa.unparse(rows)], { type: "text/csv;charset=utf-8" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
     a.download = `sales-${period}-${new Date().toISOString().slice(0, 10)}.csv`;
+    document.body.appendChild(a);
     a.click();
-    URL.revokeObjectURL(url);
+    document.body.removeChild(a);
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+
   };
 
   const deleteSale = async (id: string) => {
